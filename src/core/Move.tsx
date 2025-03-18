@@ -37,12 +37,12 @@ export default class Move {
     }
 
     public applyThisMove() {
-        this.cell.applyMoveOnCell(this);
+        this.cell.setCellEntry(this.finalCellEntry);
         this.applied = true;
     }
 
     public undoThisMove() {
-        this.cell.revertMoveOnCell(this);
+        this.cell.setCellEntry(this.previousCellEntry);
         this.applied = false;
     }
 

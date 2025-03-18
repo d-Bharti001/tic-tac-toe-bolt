@@ -18,9 +18,9 @@ export default class Board {
 
     public copy(): Board {
         const boardCopy = new Board();
-        for (let i = 0; i < this.ROWS; i++) {
-            for (let j = 0; j < this.COLUMNS; j++) {
-                boardCopy.cells[i][j] = this.getCell(i, j);
+        for (let i = 0; i < boardCopy.ROWS; i++) {
+            for (let j = 0; j < boardCopy.COLUMNS; j++) {
+                boardCopy.cells[i][j] = this.getCell(i, j).copy();
             }
         }
         return boardCopy;

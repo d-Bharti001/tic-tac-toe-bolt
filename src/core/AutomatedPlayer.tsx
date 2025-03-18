@@ -1,27 +1,41 @@
+import Board from "./Board";
 import Cell, { CellPosition } from "./Cell";
+import { CellEntry } from "./CellEntry";
 import { NoCellAvailableForMove } from "./Errors";
 import Game from "./Game";
-import Move from "./Move";
 import Player from "./Player";
 
 export default class AutomatedPlayer extends Player {
     public async selectCellPositionToMakeMove(game: Game): Promise<CellPosition> {
-        await AutomatedPlayer.waitTime(2000);
-        const emptyCells = game.board.getAllEmptyCells();
-        for (const cell of emptyCells) {
-            const cellPosition = cell.getCellPosition();
-            if (this.canMakeAWinningMove(game, cellPosition)) {
-                return Promise.resolve(cellPosition);
+        await AutomatedPlayer.waitTime(1000);
+        const boardCopy = game.board.copy();
+        const emptyCells = boardCopy.getAllEmptyCells();
+
+        const ownCellEntry = this.getCellEntry(game);
+        const otherCellEntry =
+            ownCellEntry === CellEntry.X ? CellEntry.O : CellEntry.X;
+
+        // Check for possible win of self and then of the other player
+        for (const cellEntry of [ownCellEntry, otherCellEntry]) {
+            for (const cell of emptyCells) {
+                if (AutomatedPlayer.canBeAWinningMove(boardCopy, cell, cellEntry)) {
+                    return Promise.resolve(cell.getCellPosition());
+                }
+                // await AutomatedPlayer.waitTime(600);
             }
         }
-        const randomCell = this.pickAnyRandomCell(emptyCells);
+
+        // Pick any random empty cell
+        const randomCell = AutomatedPlayer.pickAnyRandomCell(emptyCells);
         if (randomCell) {
             return Promise.resolve(randomCell.getCellPosition());
         }
+
         throw new NoCellAvailableForMove();
     }
 
-    private pickAnyRandomCell(cells: Array<Cell>): Cell | null {
+    private static pickAnyRandomCell(cells: Array<Cell>): Cell | null {
+        // console.log("Picked random cell");
         const len = cells.length;
         if (!len) {
             return null;
@@ -30,19 +44,18 @@ export default class AutomatedPlayer extends Player {
         return cells[randomIndex];
     }
 
-    private canMakeAWinningMove(game: Game, cellPosition: CellPosition): boolean {
-        const boardCopy = game.board.copy();
-        Move.createAndApplyMove(
-            0,
-            this,
-            boardCopy.getCell(cellPosition.row, cellPosition.col),
-            game.cellEntryAssociation
-        );
-        const result = game.checkGameCompleted(boardCopy, game.cellEntryAssociation);
-        if (result && result.winner === this) {
-            return true;
-        }
-        return false;
+    private static canBeAWinningMove(
+        boardCopy: Board,
+        cell: Cell,
+        newCellEntry: CellEntry
+    ): boolean {
+        const oldCellEntry = cell.getCellEntry();
+        cell.setCellEntry(newCellEntry);
+        // console.log("Board copy:");
+        // boardCopy.printBoard();
+        const winningCells = Game.checkGameCompleted(boardCopy);
+        cell.setCellEntry(oldCellEntry);
+        return Boolean(winningCells);
     }
 
     private static waitTime(millis: number): Promise<number> {

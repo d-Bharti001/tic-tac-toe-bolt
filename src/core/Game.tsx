@@ -1,9 +1,7 @@
-import AutomatedPlayer from "./AutomatedPlayer";
 import Board from "./Board";
 import Cell from "./Cell";
 import CellEntryAssociation from "./CellEntryAssociation";
 import { GameState } from "./GameState";
-import ManualPlayer from "./ManualPlayer";
 import MovesController from "./MovesController";
 import Player from "./Player";
 import { TurnSequence } from "./TurnSequence";
@@ -59,42 +57,41 @@ export default class Game {
     }
 
     public updateGameSequence() {
-        const winningState = this.checkGameCompleted(this.board, this.cellEntryAssociation);
-        if (winningState) {
-            this.winner = winningState.winner;
-            this.winningCells = winningState.cells;
+        const winningCells = Game.checkGameCompleted(this.board);
+        if (winningCells) {
+            this.winner = winningCells[0].getAssociatedPlayer(
+                this.cellEntryAssociation
+            ) as Player;
+            this.winningCells = winningCells;
             this.gameState = GameState.Completed;
         } else {
             this.setNextTurnSequence();
         }
     }
 
-    public checkGameCompleted(board: Board, cellAssociation: CellEntryAssociation) {
-        let winningState: {
-            winner: Player,
-            cells: Array<Cell>
-        } | null = null;
+    public static checkGameCompleted(board: Board) {
+        let winningCells: Array<Cell> | null;
 
         const toCheck = [
-            this.isAnyRowComplete,
-            this.isAnyColumnComplete,
-            this.isAnyDiagonalComplete
+            Game.checkAnyRowComplete,
+            Game.checkAnyColumnComplete,
+            Game.checkAnyDiagonalComplete
         ];
 
         for (const toCheckElem of toCheck) {
-            if (!winningState) {
-                winningState = toCheckElem(board, cellAssociation);
+            winningCells = toCheckElem(board);
+            if (winningCells) {
+                return winningCells;
             }
         }
-
-        return winningState;
+        return null;
     }
 
-    public isAnyRowComplete(board: Board, cellAssociation: CellEntryAssociation) {
+    public static checkAnyRowComplete(board: Board) {
         let winningCells: Array<Cell>;
         for (let i = 0; i < board.ROWS; i++) {
             const firstCell = board.getCell(i, 0);
-            if (!firstCell.getAssociatedPlayer(cellAssociation)) {
+            if (firstCell.isEmpty()) {
                 continue;
             }
             winningCells = [firstCell];
@@ -109,20 +106,17 @@ export default class Game {
                 }
             }
             if (won) {
-                return {
-                    winner: firstCell.getAssociatedPlayer(cellAssociation) as Player,
-                    cells: winningCells
-                };
+                return winningCells;
             }
         }
         return null;
     }
 
-    public isAnyColumnComplete(board: Board, cellAssociation: CellEntryAssociation) {
+    public static checkAnyColumnComplete(board: Board) {
         let winningCells: Array<Cell>;
         for (let j = 0; j < board.COLUMNS; j++) {
             const firstCell = board.getCell(0, j);
-            if (!firstCell.getAssociatedPlayer(cellAssociation)) {
+            if (firstCell.isEmpty()) {
                 continue;
             }
             winningCells = [firstCell];
@@ -137,21 +131,18 @@ export default class Game {
                 }
             }
             if (won) {
-                return {
-                    winner: firstCell.getAssociatedPlayer(cellAssociation) as Player,
-                    cells: winningCells
-                };
+                return winningCells;
             }
         }
         return null;
     }
 
-    public isAnyDiagonalComplete(board: Board, cellAssociation: CellEntryAssociation) {
+    public static checkAnyDiagonalComplete(board: Board) {
         let winningCells: Array<Cell>;
 
         // 1st Diagonal
         let firstCell = board.getCell(0, 0);
-        if (firstCell.getAssociatedPlayer(cellAssociation)) {
+        if (!firstCell.isEmpty()) {
             winningCells = [firstCell];
             let won = true;
             for (let i = 1; i < board.ROWS; i++) {
@@ -167,16 +158,13 @@ export default class Game {
                 }
             }
             if (won) {
-                return {
-                    winner: firstCell.getAssociatedPlayer(cellAssociation) as Player,
-                    cells: winningCells
-                }
+                return winningCells;
             }
         }
 
         // 2nd diagonal
         firstCell = board.getCell(0, board.COLUMNS - 1);
-        if (firstCell.getAssociatedPlayer(cellAssociation)) {
+        if (!firstCell.isEmpty()) {
             winningCells = [firstCell];
             let won = true;
             for (let i = 1; i < board.ROWS; i++) {
@@ -192,10 +180,7 @@ export default class Game {
                 }
             }
             if (won) {
-                return {
-                    winner: firstCell.getAssociatedPlayer(cellAssociation) as Player,
-                    cells: winningCells
-                };
+                return winningCells;
             }
         }
         return null;

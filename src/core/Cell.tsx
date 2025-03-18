@@ -1,6 +1,5 @@
 import { CellEntry } from "./CellEntry";
 import CellEntryAssociation from "./CellEntryAssociation";
-import Move from "./Move";
 import Player from "./Player";
 
 export type CellPosition = {
@@ -17,6 +16,10 @@ export default class Cell {
         this.cellEntry = CellEntry.Empty;
     }
 
+    public copy(): Cell {
+        return Object.create(this);
+    }
+
     public getCellPosition() {
         return this.cellPosition;
     }
@@ -25,20 +28,16 @@ export default class Cell {
         return this.cellEntry;
     }
 
+    public setCellEntry(newEntry: CellEntry) {
+        this.cellEntry = newEntry;
+    }
+
     public isEmpty(): boolean {
         return this.cellEntry === CellEntry.Empty;
     }
 
     public getAssociatedPlayer(cellEntryAssociation: CellEntryAssociation): Player | null {
         return cellEntryAssociation.getPlayerOfCellEntry(this.cellEntry);
-    }
-
-    public applyMoveOnCell(move: Move) {
-        this.cellEntry = move.finalCellEntry;
-    }
-
-    public revertMoveOnCell(move: Move) {
-        this.cellEntry = move.previousCellEntry;
     }
 
     public getPrintableSymbol(): string {
