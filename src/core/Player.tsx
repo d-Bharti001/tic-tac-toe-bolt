@@ -19,10 +19,10 @@ export default abstract class Player {
         return game.cellEntryAssociation.getTurnSequenceOfPlayer(this);
     }
 
-    public makeMove(game: Game): Move {
-        const { row, col } = this.selectCellPositionToMakeMove(game);
+    public async makeMove(game: Game): Promise<Move> {
+        const { row, col } = await this.selectCellPositionToMakeMove(game);
         return game.movesController.makeMoveByPlayer(game, this, row, col);
     }
 
-    public abstract selectCellPositionToMakeMove(game: Game): CellPosition;
+    public abstract selectCellPositionToMakeMove(game: Game): Promise<CellPosition>;
 }

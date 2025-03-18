@@ -45,3 +45,11 @@ export class NoCellAvailableForMove extends Error {
         this.message = "No cell available";
     }
 }
+
+export class UserInputError extends Error {
+    constructor() {
+        super();
+        this.name = "UserInputError";
+        this.message = "Invalid user input";
+    }
+}

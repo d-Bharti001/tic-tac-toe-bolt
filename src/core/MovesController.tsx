@@ -74,7 +74,7 @@ export default class MovesController {
         const maxAllowedEntryCounts = this.getMaxAllowedEntryCountsForExpectedNewCellEntry(newCellEntry);
         let xEntriesCount = 0;
         let oEntriesCount = 0;
-        for (let i = this.moves.length; i >= 0; i--) {
+        for (let i = this.moves.length - 1; i >= 0; i--) {
             const move = this.moves[i];
             const cellUpdate = this.simulateMove(move);
             xEntriesCount += cellUpdate.X;

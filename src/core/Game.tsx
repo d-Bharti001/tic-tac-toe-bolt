@@ -19,10 +19,10 @@ export default class Game {
     private winner: Player | null;
     private winningCells: Array<Cell>;
 
-    constructor() {
+    constructor(playerA: Player, playerB: Player) {
         this.board = new Board();
-        this.playerA = new ManualPlayer("You");
-        this.playerB = new AutomatedPlayer("Computer");
+        this.playerA = playerA;
+        this.playerB = playerB;
         this.currentTurnSequence = TurnSequence.First;
 
         // playerA: X (1st), playerB: O (2nd)
