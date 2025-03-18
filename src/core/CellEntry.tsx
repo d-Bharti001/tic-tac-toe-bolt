@@ -4,7 +4,7 @@ export enum CellEntry {
     O,
 }
 
-export type CellEntryUpdate {
+export type CellEntryUpdate = {
     Empty: number,
     X: number,
     O: number,

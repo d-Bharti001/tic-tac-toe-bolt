@@ -2,6 +2,7 @@ import AutomatedPlayer from "./AutomatedPlayer";
 import Board from "./Board";
 import Cell from "./Cell";
 import { CellEntry } from "./CellEntry";
+import CellEntryAssociation from "./CellEntryAssociation";
 import { GameState } from "./GameState";
 import ManualPlayer from "./ManualPlayer";
 import Move from "./Move";
@@ -13,6 +14,7 @@ export default class Game {
     private board: Board;
     private playerA: Player;
     private playerB: Player;
+    private cellEntryAssociation: CellEntryAssociation;
     private movesController: MovesController;
     private gameState: GameState;
     private winner: Player | null;
@@ -20,8 +22,9 @@ export default class Game {
 
     constructor() {
         this.board = new Board();
-        this.playerA = new ManualPlayer("You", CellEntry.X, TurnSequence.First);
-        this.playerB = new AutomatedPlayer("Computer", CellEntry.O, TurnSequence.Second);
+        this.playerA = new ManualPlayer("You", CellEntry.X);
+        this.playerB = new AutomatedPlayer("Computer", CellEntry.O);
+        this.cellEntryAssociation = new CellEntryAssociation(this.playerA, this.playerB);
         this.movesController = new MovesController();
         this.gameState = GameState.Incomplete;
         this.winner = null;
@@ -38,7 +41,9 @@ export default class Game {
 
     public makeMoveByPlayer(player: Player, row: number, col: number): Move {
         const cell = this.getBoard().getCell(row, col);
-        return this.getMovesController().makeMove(player, cell);
+        const move = this.getMovesController().makeMoveByPlayer(this, player, cell);
+        this.checkGameCompleted();
+        return move;
     }
 
     public isGameComplete(): boolean {

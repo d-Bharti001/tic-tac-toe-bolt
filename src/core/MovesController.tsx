@@ -1,15 +1,15 @@
 import Cell from "./Cell";
 import { CellEntry, CellEntryUpdate } from "./CellEntry";
+import { InvalidMoveError } from "./Errors";
+import Game from "./Game";
 import Move from "./Move";
 import Player from "./Player";
 
 export default class MovesController {
     private moves: Array<Move>;
-    private moveToBeReverted: number | null;    // TODO: implement this
 
     constructor() {
         this.moves = new Array();
-        this.moveToBeReverted = null;
     }
 
     public getMovesCount(): number {
@@ -20,14 +20,32 @@ export default class MovesController {
         return this.getMovesCount();
     }
 
-    public makeMove(player: Player, cell: Cell): Move {
+    public makeMoveByPlayer(game: Game, player: Player, cell: Cell): Move {
+        if (game.isGameComplete()) {
+            throw new InvalidMoveError();
+        }
+
+        // Check the cell's entry before reverting an old move leading to Empty entry
+        // and actually making a move on that "Empty" cell valid, which shouldn't happen.
+        if (cell.getCellEntry() !== CellEntry.Empty) {
+            throw new InvalidMoveError();
+        }
+
+        // Revert old move before applying the new move
+        // to prevent an invalid state of the game (i.e. 4 nos. of similar cell entires)
+        // for an instantaneous period of time.
+        // If the new entry is going to be X, then the latest 3rd `X` move should be
+        // reverted first.
+        // moves: [O, X, O, X, O, X, O] new move: X
+        //            ^ revert this
+        this.revertOldMove(player.associatedCellEntry);
+
         const move = new Move(
             this.getNextMoveSequenceNumber(),
             player,
             cell
         );
         this.appendMove(move);
-        this.revertOldMove();
         return move;
     }
 
@@ -35,8 +53,16 @@ export default class MovesController {
         this.moves.push(move);
     }
 
-    private revertOldMove(): Move | null {
-        const MAX_ALLOWED_ENTRY_COUNT = 3;
+    private revertOldMove(newCellEntry: CellEntry): Move | null {
+        const moveToBeReverted = this.getMoveToBeReverted(newCellEntry);
+        if (moveToBeReverted instanceof Move) {
+            moveToBeReverted.revertThisMove();
+        }
+        return moveToBeReverted;
+    }
+
+    public getMoveToBeReverted(newCellEntry: CellEntry): Move | null {
+        const maxAllowedEntryCounts = this.getMaxAllowedEntryCountsForExpectedNewCellEntry(newCellEntry);
         let xEntriesCount = 0;
         let oEntriesCount = 0;
         for (let i = this.moves.length; i >= 0; i--) {
@@ -45,14 +71,26 @@ export default class MovesController {
             xEntriesCount += cellUpdate.X;
             oEntriesCount += cellUpdate.O;
             if (
-                xEntriesCount > MAX_ALLOWED_ENTRY_COUNT ||
-                oEntriesCount > MAX_ALLOWED_ENTRY_COUNT
+                xEntriesCount > maxAllowedEntryCounts.X_MAX_COUNT ||
+                oEntriesCount > maxAllowedEntryCounts.O_MAX_COUNT
             ) {
-                move.revertThisMove();
                 return move;
             }
         }
         return null;
+    }
+
+    private getMaxAllowedEntryCountsForExpectedNewCellEntry(expectedNewCellEntry: CellEntry) {
+        const result = {
+            X_MAX_COUNT: 3,
+            O_MAX_COUNT: 3
+        };
+        if (expectedNewCellEntry === CellEntry.X) {
+            result.X_MAX_COUNT -= 1;
+        } else if (expectedNewCellEntry === CellEntry.O) {
+            result.O_MAX_COUNT -= 1;
+        }
+        return result;
     }
 
     private simulateMove(move: Move): CellEntryUpdate {

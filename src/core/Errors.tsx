@@ -29,3 +29,19 @@ export class MoveRevertedError extends Error {
         this.message = "Cannot revert move: already reverted";
     }
 }
+
+export class EmptyCellEntryError extends Error {
+    constructor() {
+        super();
+        this.name = "EmptyCellEntryError";
+        this.message = "Empty cell entry isn't allowed here";
+    }
+}
+
+export class InvalidCellAssociationError extends Error {
+    constructor() {
+        super();
+        this.name = "InvalidCellAssociationError";
+        this.message = "Invalid cell and player association";
+    }
+}
