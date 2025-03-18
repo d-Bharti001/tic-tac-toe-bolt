@@ -16,6 +16,16 @@ export default class Board {
         }
     }
 
+    public copy(): Board {
+        const boardCopy = new Board();
+        for (let i = 0; i < this.ROWS; i++) {
+            for (let j = 0; j < this.COLUMNS; j++) {
+                boardCopy.cells[i][j] = this.getCell(i, j);
+            }
+        }
+        return boardCopy;
+    }
+
     public getCell(row: number, col: number): Cell {
         if (row < 0 || row >= this.ROWS ||
             col < 0 || col >= this.COLUMNS
@@ -25,12 +35,26 @@ export default class Board {
         return this.cells[row][col];
     }
 
-    public printBoard() {
-        for (const row of this.cells) {
-            for (const cell of row) {
-                const position = cell.getCellPosition();
-                console.log(position);
+    public getAllEmptyCells(): Array<Cell> {
+        let cells: Array<Cell> = [];
+        for (let i = 0; i < this.ROWS; i++) {
+            for (let j = 0; j < this.COLUMNS; j++) {
+                const cell = this.getCell(i, j);
+                if (cell.isEmpty()) {
+                    cells.push(cell);
+                }
             }
+        }
+        return cells;
+    }
+
+    public printBoard() {
+        for (const cellsRow of this.cells) {
+            const printRow = [];
+            for (const cell of cellsRow) {
+                printRow.push(cell.getPrintableSymbol());
+            }
+            console.log(printRow.join(" "));
         }
     }
 }

@@ -1,4 +1,3 @@
-import Cell from "./Cell";
 import { CellEntry, CellEntryUpdate } from "./CellEntry";
 import { InvalidMoveError } from "./Errors";
 import Game from "./Game";
@@ -20,14 +19,20 @@ export default class MovesController {
         return this.getMovesCount();
     }
 
-    public makeMoveByPlayer(game: Game, player: Player, cell: Cell): Move {
+    public makeMoveByPlayer(game: Game, player: Player, row: number, col: number): Move {
         if (game.isGameComplete()) {
             throw new InvalidMoveError();
         }
 
+        if (player !== game.getCurrentPlayer()) {
+            throw new InvalidMoveError();
+        }
+
+        const cell = game.board.getCell(row, col);
+
         // Check the cell's entry before reverting an old move leading to Empty entry
         // and actually making a move on that "Empty" cell valid, which shouldn't happen.
-        if (cell.getCellEntry() !== CellEntry.Empty) {
+        if (!cell.isEmpty()) {
             throw new InvalidMoveError();
         }
 
@@ -38,14 +43,18 @@ export default class MovesController {
         // reverted first.
         // moves: [O, X, O, X, O, X, O] new move: X
         //            ^ revert this
-        this.revertOldMove(player.associatedCellEntry);
+        this.revertOldMove(player.getCellEntry(game));
 
-        const move = new Move(
+        const move = Move.createAndApplyMove(
             this.getNextMoveSequenceNumber(),
             player,
-            cell
+            cell,
+            game.cellEntryAssociation,
         );
         this.appendMove(move);
+
+        game.updateGameSequence();
+
         return move;
     }
 
@@ -56,7 +65,7 @@ export default class MovesController {
     private revertOldMove(newCellEntry: CellEntry): Move | null {
         const moveToBeReverted = this.getMoveToBeReverted(newCellEntry);
         if (moveToBeReverted instanceof Move) {
-            moveToBeReverted.revertThisMove();
+            moveToBeReverted.undoThisMove();
         }
         return moveToBeReverted;
     }

@@ -6,14 +6,6 @@ export class InvalidCellAccessError extends Error {
     }
 }
 
-export class FilledCellError extends Error {
-    constructor() {
-        super();
-        this.name = "FilledCellError";
-        this.message = "Cell already filled";
-    }
-}
-
 export class InvalidMoveError extends Error {
     constructor() {
         super();
@@ -38,10 +30,18 @@ export class EmptyCellEntryError extends Error {
     }
 }
 
-export class InvalidCellAssociationError extends Error {
+export class FilledCellError extends Error {
     constructor() {
         super();
-        this.name = "InvalidCellAssociationError";
-        this.message = "Invalid cell and player association";
+        this.name = "FilledCellError";
+        this.message = "Cell already filled";
+    }
+}
+
+export class NoCellAvailableForMove extends Error {
+    constructor() {
+        super();
+        this.name = "NoCellAvailableForMove";
+        this.message = "No cell available";
     }
 }

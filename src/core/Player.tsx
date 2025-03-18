@@ -1,21 +1,28 @@
+import { CellPosition } from "./Cell";
 import { CellEntry } from "./CellEntry";
-import CellEntryAssociation from "./CellEntryAssociation";
 import Game from "./Game";
 import Move from "./Move";
 import { TurnSequence } from "./TurnSequence";
 
 export default abstract class Player {
     public readonly name: string;
-    public readonly associatedCellEntry: CellEntry;
 
-    constructor(name: string, associatedCellEntry: CellEntry) {
+    constructor(name: string) {
         this.name = name;
-        this.associatedCellEntry = associatedCellEntry;
     }
 
-    public getTurnSequence(): TurnSequence {
-        return CellEntryAssociation.getCellEntryTurnSequence(this.associatedCellEntry);
+    public getCellEntry(game: Game): CellEntry {
+        return game.cellEntryAssociation.getCellEntryOfPlayer(this);
     }
 
-    public abstract makeMove(game: Game): Move;
+    public getTurnSequence(game: Game): TurnSequence {
+        return game.cellEntryAssociation.getTurnSequenceOfPlayer(this);
+    }
+
+    public makeMove(game: Game): Move {
+        const { row, col } = this.selectCellPositionToMakeMove(game);
+        return game.movesController.makeMoveByPlayer(game, this, row, col);
+    }
+
+    public abstract selectCellPositionToMakeMove(game: Game): CellPosition;
 }

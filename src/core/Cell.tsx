@@ -3,27 +3,34 @@ import CellEntryAssociation from "./CellEntryAssociation";
 import Move from "./Move";
 import Player from "./Player";
 
+export type CellPosition = {
+    readonly row: number;
+    readonly col: number;
+}
+
 export default class Cell {
-    private row: number;
-    private col: number;
+    public readonly cellPosition: CellPosition;
     private cellEntry: CellEntry;
 
     constructor(row: number, col: number) {
-        this.row = row;
-        this.col = col;
+        this.cellPosition = { row, col };
         this.cellEntry = CellEntry.Empty;
     }
 
     public getCellPosition() {
-        return { row: this.row, col: this.col };
+        return this.cellPosition;
     }
 
     public getCellEntry(): CellEntry {
         return this.cellEntry;
     }
 
+    public isEmpty(): boolean {
+        return this.cellEntry === CellEntry.Empty;
+    }
+
     public getAssociatedPlayer(cellEntryAssociation: CellEntryAssociation): Player | null {
-        return cellEntryAssociation.getAssociatedPlayer(this.cellEntry);
+        return cellEntryAssociation.getPlayerOfCellEntry(this.cellEntry);
     }
 
     public applyMoveOnCell(move: Move) {
@@ -32,5 +39,13 @@ export default class Cell {
 
     public revertMoveOnCell(move: Move) {
         this.cellEntry = move.previousCellEntry;
+    }
+
+    public getPrintableSymbol(): string {
+        switch (this.cellEntry) {
+            case CellEntry.X: return "X";
+            case CellEntry.O: return "O";
+            default: return "_";
+        }
     }
 }

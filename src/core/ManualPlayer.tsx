@@ -1,17 +1,14 @@
-import Board from "./Board";
+import { CellPosition } from "./Cell";
 import Game from "./Game";
-import Move from "./Move";
 import Player from "./Player";
 
-export default abstract class ManualPlayer extends Player {
-    public makeMove(game: Game): Move {
-        const cell = this.selectCellToMakeMove(board);
-        
-    }
+export default class ManualPlayer extends Player {
+    public selectCellPositionToMakeMove(game: Game): CellPosition {
+        const board = game.board;
 
-
-    public selectCellToMakeMove(game: Game): Cell {
-        const board = game.getBoard();
-        
+        // TODO: Take input from user
+        let row = 1;
+        let col = 2;
+        return { row, col };
     }
 }
