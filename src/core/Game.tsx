@@ -59,9 +59,8 @@ export default class Game {
     public updateGameSequence() {
         const winningCells = Game.checkGameCompleted(this.board);
         if (winningCells) {
-            this.winner = winningCells[0].getAssociatedPlayer(
-                this.cellEntryAssociation
-            ) as Player;
+            this.winner =
+                winningCells[0].getAssociatedPlayer(this) as Player;
             this.winningCells = winningCells;
             this.gameState = GameState.Completed;
         } else {

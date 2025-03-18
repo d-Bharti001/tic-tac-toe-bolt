@@ -1,5 +1,5 @@
 import { CellEntry } from "./CellEntry";
-import CellEntryAssociation from "./CellEntryAssociation";
+import Game from "./Game";
 import Player from "./Player";
 
 export type CellPosition = {
@@ -36,8 +36,8 @@ export default class Cell {
         return this.cellEntry === CellEntry.Empty;
     }
 
-    public getAssociatedPlayer(cellEntryAssociation: CellEntryAssociation): Player | null {
-        return cellEntryAssociation.getPlayerOfCellEntry(this.cellEntry);
+    public getAssociatedPlayer(game: Game): Player | null {
+        return game.cellEntryAssociation.getPlayerOfCellEntry(this.cellEntry);
     }
 
     public getPrintableSymbol(): string {
