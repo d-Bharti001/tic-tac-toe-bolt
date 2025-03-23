@@ -6,7 +6,7 @@ async function playGame() {
     const playerA = new ManualPlayer("You");
     const playerB = new AutomatedPlayer("Computer");
 
-    const game = new Game(playerA, playerB);
+    const game = Game.create(playerA, playerB);
 
     while (!game.isGameComplete()) {
         console.log("Board ######");

@@ -2,28 +2,46 @@ import Cell from "./Cell";
 import { InvalidCellAccessError } from "./Errors";
 
 export default class Board {
-    public readonly ROWS = 3;
-    public readonly COLUMNS = 3;
+    public static readonly ROWS = 3;
+    public static readonly COLUMNS = 3;
+    public readonly ROWS = (this.constructor as typeof Board).ROWS;
+    public readonly COLUMNS = (this.constructor as typeof Board).COLUMNS;
     private readonly cells: Array<Array<Cell>>;
 
-    constructor() {
-        this.cells = new Array();
-        for (let i = 0; i < this.ROWS; i++) {
-            const cellsRow = new Array(this.COLUMNS).fill(null).map((_, j) =>
-                new Cell(i, j)
-            );
-            this.cells.push(cellsRow);
+    constructor(cells: Array<Array<Cell>>) {
+        if (cells.length !== this.ROWS) {
+            throw new InvalidCellAccessError();
         }
+        for (const cellsRow of cells) {
+            if (cellsRow.length !== this.COLUMNS) {
+                throw new InvalidCellAccessError();
+            }
+        }
+        this.cells = cells;
+    }
+
+    protected static createWithCells(
+        cellCreator: (row: number, col: number) => Cell
+    ): Board {
+        const cells = new Array();
+        for (let i = 0; i < this.ROWS; i++) {
+            const cellsRow = new Array();
+            for (let j = 0; j < this.COLUMNS; j++) {
+                cellsRow.push(cellCreator(i, j));
+            }
+            cells.push(cellsRow);
+        }
+        return new this(cells);
+    }
+
+    public static create(): Board {
+        return this.createWithCells(Cell.create.bind(Cell));
     }
 
     public copy(): Board {
-        const boardCopy = new Board();
-        for (let i = 0; i < boardCopy.ROWS; i++) {
-            for (let j = 0; j < boardCopy.COLUMNS; j++) {
-                boardCopy.cells[i][j] = this.getCell(i, j).copy();
-            }
-        }
-        return boardCopy;
+        return (this.constructor as typeof Board).createWithCells(
+            (i: number, j: number) => this.getCell(i, j).copy()
+        );
     }
 
     public getCell(row: number, col: number): Cell {

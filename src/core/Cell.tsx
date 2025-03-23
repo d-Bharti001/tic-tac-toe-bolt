@@ -11,13 +11,23 @@ export default class Cell {
     public readonly cellPosition: CellPosition;
     private cellEntry: CellEntry;
 
-    constructor(row: number, col: number) {
+    constructor(row: number, col: number, entry: CellEntry) {
         this.cellPosition = { row, col };
-        this.cellEntry = CellEntry.Empty;
+        this.cellEntry = entry;
+    }
+
+    protected static createWithEntry(row: number, col: number, entry: CellEntry): Cell {
+        return new this(row, col, entry);
+    }
+
+    public static create(row: number, col: number): Cell {
+        return this.createWithEntry(row, col, CellEntry.Empty);
     }
 
     public copy(): Cell {
-        return Object.create(this);
+        const { row, col } = this.getCellPosition();
+        const entry = this.getCellEntry();
+        return (this.constructor as typeof Cell).createWithEntry(row, col, entry);
     }
 
     public getCellPosition() {

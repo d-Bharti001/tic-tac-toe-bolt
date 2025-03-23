@@ -1,9 +1,10 @@
 import readline from "node:readline";
 import { CellPosition } from "./Cell";
 import Player from "./Player";
+import Game from "./Game";
 
 export default class ManualPlayer extends Player {
-    public async selectCellPositionToMakeMove(): Promise<CellPosition> {
+    public async selectCellPositionToMakeMove(_game: Game): Promise<CellPosition> {
         return ManualPlayer.getCellPositionForUserInput(await ManualPlayer.getUserInput());
     }
 

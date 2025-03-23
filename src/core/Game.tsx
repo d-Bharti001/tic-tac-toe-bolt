@@ -17,8 +17,12 @@ export default class Game {
     private winner: Player | null;
     private winningCells: Array<Cell>;
 
-    constructor(playerA: Player, playerB: Player) {
-        this.board = new Board();
+    constructor(
+        board: Board,
+        playerA: Player,
+        playerB: Player
+    ) {
+        this.board = board;
         this.playerA = playerA;
         this.playerB = playerB;
         this.currentTurnSequence = TurnSequence.First;
@@ -29,6 +33,18 @@ export default class Game {
         this.gameState = GameState.Incomplete;
         this.winner = null;
         this.winningCells = new Array();
+    }
+
+    protected static createNewGame( board: Board, playerA: Player, playerB: Player): Game {
+        return new this(board, playerA, playerB);
+    }
+
+    public static create(playerA: Player, playerB: Player): Game {
+        return this.createNewGame(
+            Board.create(),
+            playerA,
+            playerB
+        );
     }
 
     public getCurrentPlayer(): Player {
