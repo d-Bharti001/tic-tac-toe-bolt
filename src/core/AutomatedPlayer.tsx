@@ -7,7 +7,6 @@ import Player from "./Player";
 
 export default class AutomatedPlayer extends Player {
     public async selectCellPositionToMakeMove(game: Game): Promise<CellPosition> {
-        await AutomatedPlayer.waitTime(1000);
         const boardCopy = game.board.copy();
         const emptyCells = boardCopy.getAllEmptyCells();
 
@@ -21,7 +20,6 @@ export default class AutomatedPlayer extends Player {
                 if (AutomatedPlayer.canBeAWinningMove(boardCopy, cell, cellEntry)) {
                     return Promise.resolve(cell.getCellPosition());
                 }
-                // await AutomatedPlayer.waitTime(600);
             }
         }
 
@@ -35,7 +33,6 @@ export default class AutomatedPlayer extends Player {
     }
 
     private static pickAnyRandomCell(cells: Array<Cell>): Cell | null {
-        // console.log("Picked random cell");
         const len = cells.length;
         if (!len) {
             return null;
@@ -51,16 +48,8 @@ export default class AutomatedPlayer extends Player {
     ): boolean {
         const oldCellEntry = cell.getCellEntry();
         cell.setCellEntry(newCellEntry);
-        // console.log("Board copy:");
-        // boardCopy.printBoard();
         const winningCells = Game.checkGameCompleted(boardCopy);
         cell.setCellEntry(oldCellEntry);
         return Boolean(winningCells);
-    }
-
-    private static waitTime(millis: number): Promise<number> {
-        return new Promise((resolve) => {
-            setTimeout(() => resolve(millis), millis);
-        });
     }
 }
