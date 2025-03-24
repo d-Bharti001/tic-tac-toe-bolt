@@ -17,7 +17,7 @@ export default class AutomatedPlayer extends Player {
         // Check for possible win of self and then of the other player
         for (const cellEntry of [ownCellEntry, otherCellEntry]) {
             for (const cell of emptyCells) {
-                if (AutomatedPlayer.canBeAWinningMove(boardCopy, cell, cellEntry)) {
+                if (AutomatedPlayer.canBeAWinningMove(game, boardCopy, cell, cellEntry)) {
                     return Promise.resolve(cell.getCellPosition());
                 }
             }
@@ -42,6 +42,7 @@ export default class AutomatedPlayer extends Player {
     }
 
     private static canBeAWinningMove(
+        game: Game,
         boardCopy: Board,
         cell: Cell,
         newCellEntry: CellEntry
@@ -49,7 +50,20 @@ export default class AutomatedPlayer extends Player {
         const oldCellEntry = cell.getCellEntry();
         cell.setCellEntry(newCellEntry);
         const winningCells = Game.checkGameCompleted(boardCopy);
+        let isWinning = Boolean(winningCells);
+        if (winningCells) {
+            const resetCell =
+                game.getCellToBeResetFromExpectedNewCellEntry(newCellEntry);
+            if (resetCell) {
+                for (const cell of winningCells) {
+                    if (cell.isSameCell(resetCell.getCellPosition())) {
+                        isWinning = false;
+                        break;
+                    }
+                }
+            }
+        }
         cell.setCellEntry(oldCellEntry);
-        return Boolean(winningCells);
+        return isWinning;
     }
 }

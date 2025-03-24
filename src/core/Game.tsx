@@ -1,7 +1,9 @@
 import Board from "./Board";
 import Cell from "./Cell";
+import { CellEntry } from "./CellEntry";
 import CellEntryAssociation from "./CellEntryAssociation";
 import { GameState } from "./GameState";
+import Move from "./Move";
 import MovesController from "./MovesController";
 import Player from "./Player";
 import { TurnSequence } from "./TurnSequence";
@@ -12,7 +14,7 @@ export default class Game {
     public readonly playerB: Player;
     private currentTurnSequence: TurnSequence;
     public readonly cellEntryAssociation: CellEntryAssociation;
-    public readonly movesController: MovesController;
+    private readonly movesController: MovesController;
     private gameState: GameState;
     private winner: Player | null;
     private cellToBeReset: Cell | null;
@@ -57,6 +59,10 @@ export default class Game {
         return this.cellEntryAssociation.getPlayerOfTurnSequence(this.getNextTurnSequence());
     }
 
+    public makeMoveByPlayer(player: Player, row: number, col: number): Move {
+        return this.movesController.makeMoveByPlayer(this, player, row, col);
+    }
+
     public isGameComplete(): boolean {
         return this.gameState === GameState.Completed;
     }
@@ -88,10 +94,14 @@ export default class Game {
         return this.cellToBeReset;
     }
 
+    public getCellToBeResetFromExpectedNewCellEntry(cellEntry: CellEntry): Cell | null {
+        return this.movesController.getMoveToBeReverted(cellEntry)?.cell as Cell ?? null;
+    }
+
     public setCellToBeReset(): Cell | null {
-        this.cellToBeReset = this.movesController.getMoveToBeReverted(
+        this.cellToBeReset = this.getCellToBeResetFromExpectedNewCellEntry(
             this.cellEntryAssociation.getCellEntryOfPlayer(this.getNextPlayer())
-        )?.cell as Cell ?? null;
+        );
         return this.cellToBeReset;
     }
 

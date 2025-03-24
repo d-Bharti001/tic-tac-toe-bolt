@@ -21,7 +21,7 @@ export default abstract class Player {
 
     public async makeMove(game: Game): Promise<Move> {
         const { row, col } = await this.selectCellPositionToMakeMove(game);
-        return game.movesController.makeMoveByPlayer(game, this, row, col);
+        return game.makeMoveByPlayer(this, row, col);
     }
 
     public abstract selectCellPositionToMakeMove(game: Game): Promise<CellPosition>;
