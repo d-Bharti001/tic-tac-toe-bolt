@@ -50,11 +50,33 @@ export default class Cell {
         return game.cellEntryAssociation.getPlayerOfCellEntry(this.cellEntry);
     }
 
+    public isSameCell(otherCellPosition: CellPosition): boolean {
+        const { row, col } = otherCellPosition;
+        const { row: thisRow, col: thisCol } = this.getCellPosition();
+        return thisRow === row && thisCol === col;
+    }
+
+    public isCellToBeReset(game: Game): boolean {
+        const cellToBeReset = game.getCellToBeReset();
+        if (cellToBeReset) {
+            return this.isSameCell(cellToBeReset.getCellPosition());
+        }
+        return false;
+    }
+
     public getPrintableSymbol(): string {
         switch (this.cellEntry) {
             case CellEntry.X: return "X";
             case CellEntry.O: return "O";
             default: return "_";
         }
+    }
+
+    public getPrintableSymbolWithGameState(game: Game): string {
+        const symbol = this.getPrintableSymbol();
+        if (this.isCellToBeReset(game)) {
+            return symbol.toLowerCase();
+        }
+        return symbol;
     }
 }

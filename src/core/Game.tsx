@@ -15,6 +15,7 @@ export default class Game {
     public readonly movesController: MovesController;
     private gameState: GameState;
     private winner: Player | null;
+    private cellToBeReset: Cell | null;
     private winningCells: Array<Cell>;
 
     constructor(
@@ -32,6 +33,7 @@ export default class Game {
         this.movesController = new MovesController();
         this.gameState = GameState.Incomplete;
         this.winner = null;
+        this.cellToBeReset = null;
         this.winningCells = new Array();
     }
 
@@ -48,7 +50,11 @@ export default class Game {
     }
 
     public getCurrentPlayer(): Player {
-        return this.cellEntryAssociation.getPlayerOfTurnSequence(this.currentTurnSequence);
+        return this.cellEntryAssociation.getPlayerOfTurnSequence(this.getCurrentTurnSequence());
+    }
+
+    public getNextPlayer(): Player {
+        return this.cellEntryAssociation.getPlayerOfTurnSequence(this.getNextTurnSequence());
     }
 
     public isGameComplete(): boolean {
@@ -63,23 +69,42 @@ export default class Game {
         return this.winningCells ?? null;
     }
 
-    public setNextTurnSequence(): TurnSequence {
-        if (this.currentTurnSequence === TurnSequence.First) {
-            this.currentTurnSequence = TurnSequence.Second;
-        } else {
-            this.currentTurnSequence = TurnSequence.First;
-        }
+    public getCurrentTurnSequence(): TurnSequence {
         return this.currentTurnSequence;
+    }
+
+    public getNextTurnSequence(): TurnSequence {
+        if (this.getCurrentTurnSequence() === TurnSequence.First) {
+            return TurnSequence.Second;
+        }
+        return TurnSequence.First;
+    }
+
+    public setNextTurnSequence(): TurnSequence {
+        return this.currentTurnSequence = this.getNextTurnSequence();
+    }
+
+    public getCellToBeReset(): Cell | null {
+        return this.cellToBeReset;
+    }
+
+    public setCellToBeReset(): Cell | null {
+        this.cellToBeReset = this.movesController.getMoveToBeReverted(
+            this.cellEntryAssociation.getCellEntryOfPlayer(this.getNextPlayer())
+        )?.cell as Cell ?? null;
+        return this.cellToBeReset;
     }
 
     public updateGameSequence() {
         const winningCells = Game.checkGameCompleted(this.board);
         if (winningCells) {
+            this.cellToBeReset = null;
             this.winner =
                 winningCells[0].getAssociatedPlayer(this) as Player;
             this.winningCells = winningCells;
             this.gameState = GameState.Completed;
         } else {
+            this.setCellToBeReset();
             this.setNextTurnSequence();
         }
     }

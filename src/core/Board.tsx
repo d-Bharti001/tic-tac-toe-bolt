@@ -1,5 +1,6 @@
 import Cell from "./Cell";
 import { InvalidCellAccessError } from "./Errors";
+import Game from "./Game";
 
 export default class Board {
     public static readonly ROWS = 3;
@@ -66,11 +67,15 @@ export default class Board {
         return cells;
     }
 
-    public printBoard() {
+    public printBoard(_game?: Game) {
         for (const cellsRow of this.cells) {
             const printRow = [];
             for (const cell of cellsRow) {
-                printRow.push(cell.getPrintableSymbol());
+                printRow.push(
+                    _game
+                    ? cell.getPrintableSymbolWithGameState(_game)
+                    : cell.getPrintableSymbol()
+                );
             }
             console.log(printRow.join(" "));
         }
