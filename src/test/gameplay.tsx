@@ -22,7 +22,8 @@ async function playGame() {
         try {
             await waitForMillis(800);
             console.log(`Requesting ${player.name} to make move...`);
-            await player.makeMove(game);
+            const { row, col } = await player.selectCellPositionToMakeMove(game);
+            game.makeMoveByPlayer(player, row, col);
         } catch (error) {
             console.error("Error:", error);
         }
