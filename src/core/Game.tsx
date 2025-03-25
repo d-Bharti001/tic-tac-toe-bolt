@@ -2,7 +2,7 @@ import Board from "./Board";
 import Cell from "./Cell";
 import { CellEntry } from "./CellEntry";
 import CellEntryAssociation from "./CellEntryAssociation";
-import { GameState } from "./GameState";
+import { GameStatus } from "./GameStatus";
 import Move from "./Move";
 import MovesController from "./MovesController";
 import Player from "./Player";
@@ -15,10 +15,10 @@ export default class Game {
     private currentTurnSequence: TurnSequence;
     public readonly cellEntryAssociation: CellEntryAssociation;
     private readonly movesController: MovesController;
-    private gameState: GameState;
+    private gameStatus: GameStatus;
     private winner: Player | null;
     private cellToBeReset: Cell | null;
-    private winningCells: Array<Cell>;
+    private winningCells: Array<Cell> | null;
 
     constructor(
         board: Board,
@@ -33,18 +33,14 @@ export default class Game {
         // playerA: X (1st), playerB: O (2nd)
         this.cellEntryAssociation = new CellEntryAssociation(this.playerA, this.playerB);
         this.movesController = new MovesController();
-        this.gameState = GameState.Incomplete;
+        this.gameStatus = GameStatus.Incomplete;
         this.winner = null;
         this.cellToBeReset = null;
-        this.winningCells = new Array();
-    }
-
-    protected static createNewGame( board: Board, playerA: Player, playerB: Player): Game {
-        return new this(board, playerA, playerB);
+        this.winningCells = null;
     }
 
     public static create(playerA: Player, playerB: Player): Game {
-        return this.createNewGame(
+        return new this(
             Board.create(),
             playerA,
             playerB
@@ -60,11 +56,13 @@ export default class Game {
     }
 
     public makeMoveByPlayer(player: Player, row: number, col: number): Move {
-        return this.movesController.makeMoveByPlayer(this, player, row, col);
+        const move = this.movesController.makeMoveByPlayer(this, player, row, col);
+        this.updateGameSequence();
+        return move;
     }
 
     public isGameComplete(): boolean {
-        return this.gameState === GameState.Completed;
+        return this.gameStatus === GameStatus.Completed;
     }
 
     public whoWonTheGame(): Player | null {
@@ -86,7 +84,7 @@ export default class Game {
         return TurnSequence.First;
     }
 
-    public setNextTurnSequence(): TurnSequence {
+    private setNextTurnSequence(): TurnSequence {
         return this.currentTurnSequence = this.getNextTurnSequence();
     }
 
@@ -105,14 +103,14 @@ export default class Game {
         return this.cellToBeReset;
     }
 
-    public updateGameSequence() {
+    private updateGameSequence() {
         const winningCells = Game.checkGameCompleted(this.board);
         if (winningCells) {
             this.cellToBeReset = null;
             this.winner =
                 winningCells[0].getAssociatedPlayer(this) as Player;
             this.winningCells = winningCells;
-            this.gameState = GameState.Completed;
+            this.gameStatus = GameStatus.Completed;
         } else {
             this.setCellToBeReset();
             this.setNextTurnSequence();

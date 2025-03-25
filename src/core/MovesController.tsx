@@ -53,8 +53,6 @@ export default class MovesController {
         );
         this.appendMove(move);
 
-        game.updateGameSequence();
-
         return move;
     }
 
