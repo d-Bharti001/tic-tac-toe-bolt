@@ -1,14 +1,18 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useGameplay } from "../contexts/GameplayContext";
-import Cell, { CellPosition } from "../core/Cell";
+import { CellPosition } from "../core/Cell";
 import { CellEntry } from "../core/CellEntry";
-import ManualPlayer from "../core/ManualPlayer";
-import { getManualPlayer } from "../utils/gameplayUtils";
 import CellEntryAssociation from "../core/CellEntryAssociation";
 import { TurnSequence } from "../core/TurnSequence";
+import AutomatedPlayer from "../core/AutomatedPlayer";
 
 export interface CellProps {
     cellPosition: CellPosition;
+}
+
+enum CellBackground {
+    NORMAL = "NORMAL",
+    GLOW = "GLOW"
 }
 
 const CELL_BG = "#263238"; // Dark background for cells
@@ -17,106 +21,111 @@ const X_COLOR = "#FF5722"; // Reddish-orange for X
 const O_COLOR = "#2196F3"; // Blue for O
 
 export default function GuiCell({ cellPosition }: CellProps) {
-    const { gameState, createNewGameAndPlayFirstMove, getGame, playNextMove } = useGameplay();
+    const { createNewGameAndPlayFirstMove, getGame, playNextMove } = useGameplay();
 
-    const [cellEntry, setCellEntry] = useState<CellEntry>(CellEntry.Empty);
-    const [visibility, setVisibility] = useState<number>(0);
-    const [background, setBackground] = useState<"NORMAL" | "GLOW">("NORMAL");
+    const [hovering, setHovering] = useState<boolean>(false);
 
-    const setForeground = (cellEntry: CellEntry, visibility: number) => {
-        setCellEntry(cellEntry);
-        setVisibility(visibility);
-    };
-
-    const updateCellUsingGameDetails = () => {
+    const getBackground = (): CellBackground => {
         const game = getGame();
         if (game) {
-            const cell = getThisCell() as Cell;
-            if (!cell.isEmpty()) {
-                let visibility = 1;
-                let cellToBeReset = game.getCellToBeReset();
-                if (cellToBeReset && cell.isSameCell(cellToBeReset.getCellPosition()))
-                    visibility = 0.6;
-                setForeground(cell.getCellEntry(), visibility);
-            } else {
-                setForeground(CellEntry.Empty, 0);
-            }
-
             const winningCells = game.getWinningCells();
-            let isWinningCell = false;
             if (winningCells) {
                 for (const cell of winningCells) {
                     if (cell.isSameCell(cellPosition)) {
-                        isWinningCell = true;
-                        break;
+                        return CellBackground.GLOW;
                     }
                 }
             }
-            if (isWinningCell)
-                setBackground("GLOW");
-            else
-                setBackground("NORMAL");
-        } else {
-            setForeground(CellEntry.Empty, 0);
-            setBackground("NORMAL");
         }
+        return CellBackground.NORMAL;
     };
 
-    const getThisCell = (): Cell | null => {
+    const getCellEntryFromGame = (): CellEntry => {
         const game = getGame();
         if (game) {
-            return game.board.getCell(cellPosition.row, cellPosition.col);
+            return game.board.getCell(cellPosition).getCellEntry();
         }
-        return null;
+        return CellEntry.Empty;
+    };
+
+    const getVisibilityFromGame = (): number => {
+        const game = getGame();
+        if (game) {
+            const dimmedCell = game.getCellToBeReset();
+            if (dimmedCell && dimmedCell.isSameCell(cellPosition)) {
+                return 0.6;
+            }
+            const cell = game.board.getCell(cellPosition);
+            if (!cell.isEmpty())
+                return 1;
+        }
+        return 0;
+    };
+
+    const getCellEntry = (): CellEntry => {
+        if (!hovering)
+            return getCellEntryFromGame();
+
+        // Logic for hover
+        const game = getGame();
+        if (game) {
+            if (
+                game.isGameComplete() ||
+                !game.board.getCell(cellPosition).isEmpty() ||
+                game.getCurrentPlayer() instanceof AutomatedPlayer
+            ) {
+                return getCellEntryFromGame();
+            }
+            return game.cellEntryAssociation.getCellEntryOfPlayer(game.getCurrentPlayer());
+        }
+        return CellEntryAssociation.getCellEntryOfTurnSequence(TurnSequence.First);
+    };
+
+    const getVisibility = (): number => {
+        if (!hovering)
+            return getVisibilityFromGame();
+
+        // Logic for hover
+        const game = getGame();
+        if (game) {
+            if (
+                game.isGameComplete() ||
+                !game.board.getCell(cellPosition).isEmpty() ||
+                game.getCurrentPlayer() instanceof AutomatedPlayer
+            ) {
+                return getVisibilityFromGame();
+            }
+        }
+        return 0.4;
     };
 
     const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
         event.preventDefault();
         const game = getGame();
         if (game) {
-            let manualPlayer = getManualPlayer(game) as ManualPlayer;
-            playNextMove(manualPlayer, cellPosition);
+            playNextMove(game.getCurrentPlayer(), cellPosition);
         } else {
             createNewGameAndPlayFirstMove(cellPosition);
         }
     };
-
-    const updateCellOnHover = () => {
-        const game = getGame();
-        if (game) {
-            if (game.isGameComplete()) {
-                return;
-            }
-            const cell = getThisCell() as Cell;
-            if (cell.isEmpty() && game.getCurrentPlayer() instanceof ManualPlayer) {
-                setForeground(
-                    game.cellEntryAssociation.getCellEntryOfPlayer(game.getCurrentPlayer()),
-                    0.4
-                );
-            }
-        } else {
-            setForeground(
-                CellEntryAssociation.getCellEntryOfTurnSequence(TurnSequence.First),
-                0.4
-            );
-        }
-    };
-
-    useEffect(() => {
-        updateCellUsingGameDetails();
-    }, [gameState]);
 
     return (
         <div
             className="cell"
             role="button"
             onClick={handleClick}
-            onMouseEnter={updateCellOnHover}
-            onMouseLeave={updateCellUsingGameDetails}
+            onMouseEnter={(e) => {
+                e.preventDefault();
+                setHovering(true);
+            }}
+            onMouseLeave={(e) => {
+                e.preventDefault();
+                setHovering(false);
+            }}
             style={{
                 width: "100%",
                 height: "100%",
-                background: background === "GLOW" ? `radial-gradient(circle, ${WIN_GLOW} 5%, ${CELL_BG} 70%)` : CELL_BG,
+                background: getBackground() === CellBackground.GLOW ? `radial-gradient(circle, ${WIN_GLOW} 5%, ${CELL_BG} 70%)` : CELL_BG,
                 transition: "background 0.3s ease-in-out",
                 display: "flex",
                 alignItems: "center",
@@ -129,7 +138,7 @@ export default function GuiCell({ cellPosition }: CellProps) {
                 width="100%"
                 height="100%"
                 viewBox="0 0 50 50"
-                style={{ opacity: visibility, transition: "opacity 0.1s ease-in-out" }}
+                style={{ opacity: getVisibility(), transition: "opacity 0.1s ease-in-out" }}
             >
                 <defs>
                     <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
@@ -138,31 +147,31 @@ export default function GuiCell({ cellPosition }: CellProps) {
                 </defs>
 
                 <g transform="translate(25, 25) scale(0.5) translate(-25, -25)">
-                {
-                    cellEntry === CellEntry.X &&
-                    <>
-                        <line
-                            x1="5" y1="5" x2="45" y2="45"
-                            stroke={X_COLOR} strokeWidth="5" strokeLinecap="round"
-                            filter="url(#shadow)"
-                        />
-                        <line
-                            x1="45" y1="5" x2="5" y2="45"
-                            stroke={X_COLOR} strokeWidth="5" strokeLinecap="round"
-                            filter="url(#shadow)"
-                        />
-                    </>
-                }
-                {
-                    cellEntry === CellEntry.O &&
-                    <>
-                        <circle
-                            cx="25" cy="25" r="20"
-                            stroke={O_COLOR} strokeWidth="5" fill="none"
-                            filter="url(#shadow)"
-                        />
-                    </>
-                }
+                    {
+                        getCellEntry() === CellEntry.X &&
+                        <>
+                            <line
+                                x1="5" y1="5" x2="45" y2="45"
+                                stroke={X_COLOR} strokeWidth="5" strokeLinecap="round"
+                                filter="url(#shadow)"
+                            />
+                            <line
+                                x1="45" y1="5" x2="5" y2="45"
+                                stroke={X_COLOR} strokeWidth="5" strokeLinecap="round"
+                                filter="url(#shadow)"
+                            />
+                        </>
+                    }
+                    {
+                        getCellEntry() === CellEntry.O &&
+                        <>
+                            <circle
+                                cx="25" cy="25" r="20"
+                                stroke={O_COLOR} strokeWidth="5" fill="none"
+                                filter="url(#shadow)"
+                            />
+                        </>
+                    }
                 </g>
             </svg>
         </div>

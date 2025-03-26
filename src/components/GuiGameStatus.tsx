@@ -12,31 +12,25 @@ export default function GuiGameStatus() {
         !isGameStarted
         ? "NOT_STARTED"
         : !isGameComplete
-            ? "INCOMPLETE"
+            ? "IN_PROGRESS"
             : isPlayerWinner
             ? "WIN"
             : "LOSE";
 
     return (
-        <h3>
+        <>
         {
-            (gameStatus === "NOT_STARTED" || gameStatus === "INCOMPLETE") &&
-            <>
+            gameStatus === "NOT_STARTED" &&
+            <h3>
                 It's a looong way to go...
-            </>
+            </h3>
         }
         {
             gameStatus === "WIN" &&
-            <>
+            <h2>
                 🎉
-            </>
+            </h2>
         }
-        {
-            gameStatus === "LOSE" &&
-            <>
-                Try again? ✌️
-            </>
-        }
-        </h3>
+        </>
     );
 }

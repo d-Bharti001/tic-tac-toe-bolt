@@ -78,15 +78,15 @@ export default function GameplayProvider({ children }: GameplayProviderProps) {
         playNextMove(game.getCurrentPlayer(), cellPosition);
     };
 
-    const playNextMove = (player: Player, { row, col }: CellPosition) => {
+    const playNextMove = (player: Player, cellPosition: CellPosition) => {
         const game = getGame();
         if (
             game &&
             !game.isGameComplete() &&
-            game.board.getCell(row, col).isEmpty() &&
+            game.board.getCell(cellPosition).isEmpty() &&
             player === game.getCurrentPlayer()
         ) {
-            game.makeMoveByPlayer(player, row, col);
+            game.makeMoveByPlayer(player, cellPosition);
 
             // Update game state on successful move
             updateGameState();
