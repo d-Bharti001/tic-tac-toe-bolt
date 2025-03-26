@@ -1,3 +1,4 @@
+import { CellPosition } from "./Cell";
 import { CellEntry, CellEntryUpdate } from "./CellEntry";
 import { InvalidMoveError } from "./Errors";
 import Game from "./Game";
@@ -19,7 +20,7 @@ export default class MovesController {
         return this.getMovesCount();
     }
 
-    public makeMoveByPlayer(game: Game, player: Player, row: number, col: number): Move {
+    public makeMoveByPlayer(game: Game, player: Player, cellPosition: CellPosition): Move {
         if (game.isGameComplete()) {
             throw new InvalidMoveError();
         }
@@ -28,7 +29,7 @@ export default class MovesController {
             throw new InvalidMoveError();
         }
 
-        const cell = game.board.getCell(row, col);
+        const cell = game.board.getCell(cellPosition);
 
         // Check the cell's entry before reverting an old move leading to Empty entry
         // and actually making a move on that "Empty" cell valid, which shouldn't happen.

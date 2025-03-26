@@ -1,5 +1,5 @@
 import Board from "./Board";
-import Cell from "./Cell";
+import Cell, { CellPosition } from "./Cell";
 import { CellEntry } from "./CellEntry";
 import CellEntryAssociation from "./CellEntryAssociation";
 import { GameStatus } from "./GameStatus";
@@ -55,8 +55,8 @@ export default class Game {
         return this.cellEntryAssociation.getPlayerOfTurnSequence(this.getNextTurnSequence());
     }
 
-    public makeMoveByPlayer(player: Player, row: number, col: number): Move {
-        const move = this.movesController.makeMoveByPlayer(this, player, row, col);
+    public makeMoveByPlayer(player: Player, cellPosition: CellPosition): Move {
+        const move = this.movesController.makeMoveByPlayer(this, player, cellPosition);
         this.updateGameSequence();
         return move;
     }
@@ -138,14 +138,14 @@ export default class Game {
     public static checkAnyRowComplete(board: Board) {
         let winningCells: Array<Cell>;
         for (let i = 0; i < board.ROWS; i++) {
-            const firstCell = board.getCell(i, 0);
+            const firstCell = board.getCell({ row: i, col: 0 });
             if (firstCell.isEmpty()) {
                 continue;
             }
             winningCells = [firstCell];
             let won = true;
             for (let j = 1; j < board.COLUMNS; j++) {
-                const cell = board.getCell(i, j);
+                const cell = board.getCell({ row: i, col: j });
                 if (cell.getCellEntry() === firstCell.getCellEntry()) {
                     winningCells.push(cell);
                 } else {
@@ -163,14 +163,14 @@ export default class Game {
     public static checkAnyColumnComplete(board: Board) {
         let winningCells: Array<Cell>;
         for (let j = 0; j < board.COLUMNS; j++) {
-            const firstCell = board.getCell(0, j);
+            const firstCell = board.getCell({ row: 0, col: j });
             if (firstCell.isEmpty()) {
                 continue;
             }
             winningCells = [firstCell];
             let won = true;
             for (let i = 1; i < board.ROWS; i++) {
-                const cell = board.getCell(i, j);
+                const cell = board.getCell({ row: i, col: j });
                 if (cell.getCellEntry() === firstCell.getCellEntry()) {
                     winningCells.push(cell);
                 } else {
@@ -189,14 +189,14 @@ export default class Game {
         let winningCells: Array<Cell>;
 
         // 1st Diagonal
-        let firstCell = board.getCell(0, 0);
+        let firstCell = board.getCell({ row: 0, col: 0 });
         if (!firstCell.isEmpty()) {
             winningCells = [firstCell];
             let won = true;
             for (let i = 1; i < board.ROWS; i++) {
                 let j = i;
                 if (j < board.COLUMNS) {
-                    const cell = board.getCell(i, j);
+                    const cell = board.getCell({ row: i, col: j });
                     if (cell.getCellEntry() === firstCell.getCellEntry()) {
                         winningCells.push(cell);
                     } else {
@@ -211,14 +211,14 @@ export default class Game {
         }
 
         // 2nd diagonal
-        firstCell = board.getCell(0, board.COLUMNS - 1);
+        firstCell = board.getCell({ row: 0, col: board.COLUMNS - 1 });
         if (!firstCell.isEmpty()) {
             winningCells = [firstCell];
             let won = true;
             for (let i = 1; i < board.ROWS; i++) {
                 let j = board.COLUMNS - 1 - i;
                 if (j >= 0) {
-                    const cell = board.getCell(i, j);
+                    const cell = board.getCell({ row: i, col: j });
                     if (cell.getCellEntry() === firstCell.getCellEntry()) {
                         winningCells.push(cell);
                     } else {

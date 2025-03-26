@@ -1,4 +1,4 @@
-import Cell from "./Cell";
+import Cell, { CellPosition } from "./Cell";
 import { InvalidCellAccessError } from "./Errors";
 import Game from "./Game";
 
@@ -22,13 +22,13 @@ export default class Board {
     }
 
     protected static createWithCells(
-        cellCreator: (row: number, col: number) => Cell
+        cellCreator: (cellPosition: CellPosition) => Cell
     ): Board {
         const cells = new Array();
         for (let i = 0; i < this.ROWS; i++) {
             const cellsRow = new Array();
             for (let j = 0; j < this.COLUMNS; j++) {
-                cellsRow.push(cellCreator(i, j));
+                cellsRow.push(cellCreator({ row: i, col: j }));
             }
             cells.push(cellsRow);
         }
@@ -41,11 +41,12 @@ export default class Board {
 
     public copy(): Board {
         return (this.constructor as typeof Board).createWithCells(
-            (i: number, j: number) => this.getCell(i, j).copy()
+            (cellPosition: CellPosition) => this.getCell(cellPosition).copy()
         );
     }
 
-    public getCell(row: number, col: number): Cell {
+    public getCell(cellPosition: CellPosition): Cell {
+        const { row, col } = cellPosition;
         if (row < 0 || row >= this.ROWS ||
             col < 0 || col >= this.COLUMNS
         ) {
@@ -58,7 +59,7 @@ export default class Board {
         let cells: Array<Cell> = [];
         for (let i = 0; i < this.ROWS; i++) {
             for (let j = 0; j < this.COLUMNS; j++) {
-                const cell = this.getCell(i, j);
+                const cell = this.getCell({ row: i, col: j });
                 if (cell.isEmpty()) {
                     cells.push(cell);
                 }
