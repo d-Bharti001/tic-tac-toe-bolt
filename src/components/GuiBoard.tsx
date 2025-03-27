@@ -21,7 +21,7 @@ const cellPositions: CellPosition[] = [
 ];
 
 export default function GuiBoard() {
-    const { game, createNewGameAndPlayFirstMove, playNextMove } = useGameplay();
+    const { game, me, createNewGameAndPlayFirstMove, playNextMove } = useGameplay();
 
     const decideCellBackground = (cellPosition: CellPosition): CellBackground => {
         if (game) {
@@ -94,7 +94,9 @@ export default function GuiBoard() {
 
     const handleCellClick = (cellPosition: CellPosition) => {
         if (game) {
-            playNextMove(game.getCurrentPlayer(), cellPosition);
+            if (game.getCurrentPlayer() === me) {
+                playNextMove(me, cellPosition);
+            }
         } else {
             createNewGameAndPlayFirstMove(cellPosition);
         }

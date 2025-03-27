@@ -17,6 +17,7 @@ export interface MutableGameState {
 
 export interface GameplayContextInterface {
     game: Game | null;
+    me: Player | null;
     gameState: MutableGameState | null;
     createNewGame: () => void;
     createNewGameAndPlayFirstMove: (cellPosition: CellPosition) => void;
@@ -40,11 +41,13 @@ export interface GameplayProviderProps {
 
 export default function GameplayProvider({ children }: GameplayProviderProps) {
     const gameRef = useRef<Game | null>(null);
+    const meRef = useRef<Player | null>(null);
     const [gameState, setGameState] = useState<MutableGameState | null>(null);
 
     const getNewGameInstance = (): Game => {
         const playerA = new ManualPlayer("You");
         const playerB = new AutomatedPlayer("Computer");
+        meRef.current = playerA;
         return Game.create(playerA, playerB);
     };
 
@@ -92,6 +95,7 @@ export default function GameplayProvider({ children }: GameplayProviderProps) {
     };
 
     const reset = () => {
+        meRef.current = null;
         gameRef.current = null;
         updateGameState();
     };
@@ -133,6 +137,7 @@ export default function GameplayProvider({ children }: GameplayProviderProps) {
         <GameplayContext.Provider
             value={{
                 game: gameRef.current,
+                me: meRef.current,
                 gameState,
                 createNewGame,
                 createNewGameAndPlayFirstMove,
