@@ -8,6 +8,7 @@ import AutomatedPlayer from "../core/AutomatedPlayer";
 
 export interface MutableGameState {
     currentTurnSequence: TurnSequence;
+    totalMoves: number;
     completed: boolean;
     winner: Player | null;
     dimmedCell: Cell | null;
@@ -52,6 +53,7 @@ export default function GameplayProvider({ children }: GameplayProviderProps) {
         if (game) {
             const latestState: MutableGameState = {
                 currentTurnSequence: game.getCurrentTurnSequence(),
+                totalMoves: game.getTotalMovesCount(),
                 completed: game.isGameComplete(),
                 winner: game.whoWonTheGame(),
                 dimmedCell: game.getCellToBeReset(),
@@ -99,19 +101,36 @@ export default function GameplayProvider({ children }: GameplayProviderProps) {
     };
 
     useEffect(() => {
-        const makeMoveByAutomatedPlayer = async () => {
-            const game = getGame();
-            if (
-                game &&
-                !game.isGameComplete() &&
-                game.getCurrentPlayer() instanceof AutomatedPlayer
-            ) {
-                const player = game.getCurrentPlayer() as AutomatedPlayer;
-                const cellPosition = await player.selectCellPositionToMakeMove(game);
-                playNextMove(player, cellPosition);
-            }
+        const selectCellByAutomatedPlayer = (game: Game, player: AutomatedPlayer): Promise<CellPosition> => {
+            return new Promise((resolve, reject) => {
+                setTimeout(() => {
+                    return player.selectCellPositionToMakeMove(game).then(resolve).catch(reject);
+                }, 1000);   // Wait for one second
+            });
         };
-        setTimeout(makeMoveByAutomatedPlayer, 1000);
+
+        const game = getGame();
+        if (
+            game &&
+            !game.isGameComplete() &&
+            game.getCurrentPlayer() instanceof AutomatedPlayer
+        ) {
+            const player = game.getCurrentPlayer();
+            const totalMovesPreviously = game.getTotalMovesCount();
+            selectCellByAutomatedPlayer(game, player).then(cellPosition => {
+                const latestGame = getGame();
+                if (latestGame) {
+                    const latestMovesCount = latestGame.getTotalMovesCount();
+                    if (
+                        latestGame === game &&
+                        latestMovesCount === totalMovesPreviously
+                    ) {
+                        playNextMove(player, cellPosition);
+                    }
+                }
+            }
+            ).catch(_err => { });
+        }
     }, [gameState]);
 
     return (

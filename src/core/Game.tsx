@@ -103,6 +103,10 @@ export default class Game {
         return this.cellToBeReset;
     }
 
+    public getTotalMovesCount(): number {
+        return this.movesController.getMovesCount();
+    }
+
     private updateGameSequence() {
         const winningCells = Game.checkGameCompleted(this.board);
         if (winningCells) {
