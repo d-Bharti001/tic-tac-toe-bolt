@@ -1,16 +1,16 @@
 import { useState } from "react";
-import { useGameplay } from "../contexts/GameplayContext";
 import { CellPosition } from "../core/Cell";
 import { CellEntry } from "../core/CellEntry";
-import CellEntryAssociation from "../core/CellEntryAssociation";
-import { TurnSequence } from "../core/TurnSequence";
-import AutomatedPlayer from "../core/AutomatedPlayer";
 
 export interface CellProps {
     cellPosition: CellPosition;
+    decideCellBackground: (cellPosition: CellPosition) => CellBackground;
+    decideCellEntry: (cellPosition: CellPosition, hovering: boolean) => CellEntry;
+    decideCellEntryVisibility: (cellPosition: CellPosition, hovering: boolean) => number;
+    handleCellClick: (cellPosition: CellPosition) => void;
 }
 
-enum CellBackground {
+export enum CellBackground {
     NORMAL = "NORMAL",
     GLOW = "GLOW"
 }
@@ -20,100 +20,25 @@ const WIN_GLOW = "rgba(230, 214, 173, 0.5)"; // Light bluish-white glow
 const X_COLOR = "#FF5722"; // Reddish-orange for X
 const O_COLOR = "#2196F3"; // Blue for O
 
-export default function GuiCell({ cellPosition }: CellProps) {
-    const { createNewGameAndPlayFirstMove, getGame, playNextMove } = useGameplay();
-
+export default function GuiCell(props: CellProps) {
     const [hovering, setHovering] = useState<boolean>(false);
 
-    const getBackground = (): CellBackground => {
-        const game = getGame();
-        if (game) {
-            const winningCells = game.getWinningCells();
-            if (winningCells) {
-                for (const cell of winningCells) {
-                    if (cell.isSameCell(cellPosition)) {
-                        return CellBackground.GLOW;
-                    }
-                }
-            }
-        }
-        return CellBackground.NORMAL;
-    };
-
-    const getCellEntryFromGame = (): CellEntry => {
-        const game = getGame();
-        if (game) {
-            return game.board.getCell(cellPosition).getCellEntry();
-        }
-        return CellEntry.Empty;
-    };
-
-    const getVisibilityFromGame = (): number => {
-        const game = getGame();
-        if (game) {
-            const dimmedCell = game.getCellToBeReset();
-            if (dimmedCell && dimmedCell.isSameCell(cellPosition)) {
-                return 0.6;
-            }
-            const cell = game.board.getCell(cellPosition);
-            if (!cell.isEmpty())
-                return 1;
-        }
-        return 0;
-    };
-
-    const getCellEntry = (): CellEntry => {
-        if (!hovering)
-            return getCellEntryFromGame();
-
-        // Logic for hover
-        const game = getGame();
-        if (game) {
-            if (
-                game.isGameComplete() ||
-                !game.board.getCell(cellPosition).isEmpty() ||
-                game.getCurrentPlayer() instanceof AutomatedPlayer
-            ) {
-                return getCellEntryFromGame();
-            }
-            return game.cellEntryAssociation.getCellEntryOfPlayer(game.getCurrentPlayer());
-        }
-        return CellEntryAssociation.getCellEntryOfTurnSequence(TurnSequence.First);
-    };
-
-    const getVisibility = (): number => {
-        if (!hovering)
-            return getVisibilityFromGame();
-
-        // Logic for hover
-        const game = getGame();
-        if (game) {
-            if (
-                game.isGameComplete() ||
-                !game.board.getCell(cellPosition).isEmpty() ||
-                game.getCurrentPlayer() instanceof AutomatedPlayer
-            ) {
-                return getVisibilityFromGame();
-            }
-        }
-        return 0.4;
-    };
-
-    const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
-        event.preventDefault();
-        const game = getGame();
-        if (game) {
-            playNextMove(game.getCurrentPlayer(), cellPosition);
-        } else {
-            createNewGameAndPlayFirstMove(cellPosition);
-        }
-    };
+    const {
+        cellPosition,
+        decideCellBackground,
+        decideCellEntry,
+        decideCellEntryVisibility,
+        handleCellClick,
+    } = props;
 
     return (
         <div
             className="cell"
             role="button"
-            onClick={handleClick}
+            onClick={(e) => {
+                e.preventDefault();
+                handleCellClick(cellPosition)
+            }}
             onMouseEnter={(e) => {
                 e.preventDefault();
                 setHovering(true);
@@ -125,7 +50,9 @@ export default function GuiCell({ cellPosition }: CellProps) {
             style={{
                 width: "100%",
                 height: "100%",
-                background: getBackground() === CellBackground.GLOW ? `radial-gradient(circle, ${WIN_GLOW} 5%, ${CELL_BG} 70%)` : CELL_BG,
+                background: decideCellBackground(cellPosition) === CellBackground.GLOW
+                    ? `radial-gradient(circle, ${WIN_GLOW} 5%, ${CELL_BG} 70%)`
+                    : CELL_BG,
                 transition: "background 0.3s ease-in-out",
                 display: "flex",
                 alignItems: "center",
@@ -138,7 +65,7 @@ export default function GuiCell({ cellPosition }: CellProps) {
                 width="100%"
                 height="100%"
                 viewBox="0 0 50 50"
-                style={{ opacity: getVisibility(), transition: "opacity 0.1s ease-in-out" }}
+                style={{ opacity: decideCellEntryVisibility(cellPosition, hovering), transition: "opacity 0.1s ease-in-out" }}
             >
                 <defs>
                     <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
@@ -148,7 +75,7 @@ export default function GuiCell({ cellPosition }: CellProps) {
 
                 <g transform="translate(25, 25) scale(0.5) translate(-25, -25)">
                     {
-                        getCellEntry() === CellEntry.X &&
+                        decideCellEntry(cellPosition, hovering) === CellEntry.X &&
                         <>
                             <line
                                 x1="5" y1="5" x2="45" y2="45"
@@ -163,7 +90,7 @@ export default function GuiCell({ cellPosition }: CellProps) {
                         </>
                     }
                     {
-                        getCellEntry() === CellEntry.O &&
+                        decideCellEntry(cellPosition, hovering) === CellEntry.O &&
                         <>
                             <circle
                                 cx="25" cy="25" r="20"

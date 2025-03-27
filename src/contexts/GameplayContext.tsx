@@ -16,10 +16,10 @@ export interface MutableGameState {
 }
 
 export interface GameplayContextInterface {
+    game: Game | null;
     gameState: MutableGameState | null;
     createNewGame: () => void;
     createNewGameAndPlayFirstMove: (cellPosition: CellPosition) => void;
-    getGame: () => Game | null;
     playNextMove: (player: Player, cellPosition: CellPosition) => void;
     reset: () => void;
 }
@@ -49,7 +49,7 @@ export default function GameplayProvider({ children }: GameplayProviderProps) {
     };
 
     const updateGameState = () => {
-        const game = getGame();
+        const game = gameRef.current;
         if (game) {
             const latestState: MutableGameState = {
                 currentTurnSequence: game.getCurrentTurnSequence(),
@@ -65,10 +65,6 @@ export default function GameplayProvider({ children }: GameplayProviderProps) {
         }
     };
 
-    const getGame = () => {
-        return gameRef.current;
-    };
-
     const createNewGame = () => {
         gameRef.current = getNewGameInstance();
         updateGameState();
@@ -81,7 +77,7 @@ export default function GameplayProvider({ children }: GameplayProviderProps) {
     };
 
     const playNextMove = (player: Player, cellPosition: CellPosition) => {
-        const game = getGame();
+        const game = gameRef.current;
         if (
             game &&
             !game.isGameComplete() &&
@@ -109,7 +105,7 @@ export default function GameplayProvider({ children }: GameplayProviderProps) {
             });
         };
 
-        const game = getGame();
+        const game = gameRef.current;
         if (
             game &&
             !game.isGameComplete() &&
@@ -118,7 +114,7 @@ export default function GameplayProvider({ children }: GameplayProviderProps) {
             const player = game.getCurrentPlayer();
             const totalMovesPreviously = game.getTotalMovesCount();
             selectCellByAutomatedPlayer(game, player).then(cellPosition => {
-                const latestGame = getGame();
+                const latestGame = gameRef.current;
                 if (latestGame) {
                     const latestMovesCount = latestGame.getTotalMovesCount();
                     if (
@@ -136,10 +132,10 @@ export default function GameplayProvider({ children }: GameplayProviderProps) {
     return (
         <GameplayContext.Provider
             value={{
+                game: gameRef.current,
                 gameState,
                 createNewGame,
                 createNewGameAndPlayFirstMove,
-                getGame,
                 playNextMove,
                 reset,
             }}
