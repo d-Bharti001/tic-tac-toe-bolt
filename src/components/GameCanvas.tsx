@@ -1,7 +1,7 @@
 import Footer from "./Footer";
 import GuiBoard from "./GuiBoard";
 import GuiGameStatus from "./GuiGameStatus";
-import Restart from "./Restart";
+import RestartButton from "./RestartButton";
 
 export default function GameCanvas() {
     return (
@@ -19,7 +19,7 @@ export default function GameCanvas() {
             }}
         >
             <GuiBoard />
-            <Restart />
+            <RestartButton />
             <GuiGameStatus />
             <Footer />
         </div>

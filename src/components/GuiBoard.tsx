@@ -6,8 +6,6 @@ import CellEntryAssociation from "../core/CellEntryAssociation";
 import { TurnSequence } from "../core/TurnSequence";
 import GuiCell, { CellBackground } from "./GuiCell";
 
-const BOARD_COLOR = "#D68C2C"; // Darker orange for the board
-
 const cellPositions: CellPosition[] = [
     { row: 0, col: 0 },
     { row: 0, col: 1 },
@@ -109,7 +107,7 @@ export default function GuiBoard() {
                 display: "grid",
                 gridTemplateColumns: "repeat(3, 1fr)",  // Creates a 3x3 grid
                 gap: "4%",
-                background: BOARD_COLOR,
+                background: "#D68C2C",
                 padding: "5%",
                 borderRadius: 20,
                 position: "relative",
