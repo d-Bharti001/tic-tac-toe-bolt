@@ -1,6 +1,7 @@
 import Footer from "./Footer";
 import GuiBoard from "./GuiBoard";
 import GuiGameStatus from "./GuiGameStatus";
+import Info from "./Info";
 import RestartButton from "./RestartButton";
 
 export default function GameCanvas() {
@@ -12,12 +13,13 @@ export default function GameCanvas() {
                 flexDirection: "column",
                 alignItems: "center",
                 justifyContent: "flex-start",
-                width: "min(80vw, 600px)",
                 padding: "20px",
+                maxWidth: "360px",
                 gap: "20px",
-                margin: "50px auto",
+                margin: "40px auto",
             }}
         >
+            <Info />
             <GuiBoard />
             <RestartButton />
             <GuiGameStatus />

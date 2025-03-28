@@ -28,7 +28,9 @@ export default function RestartButton() {
             position: "relative",
             display: "flex",
             alignItems: "center",
-            minHeight: 80,
+            justifyContent: "center",
+            width: "100%",
+            minHeight: 60,
         }}>
             {
                 showButton &&
@@ -45,8 +47,9 @@ export default function RestartButton() {
                         setGlow(false);
                     }}
                     style={{
-                        width: 60,
-                        height: 60,
+                        width: "14%",
+                        height: "auto",
+                        aspectRatio: "1",
                         background: glow ? "rgba(255, 249, 196, 0.5)" : "transparent",
                         borderRadius: 50,
                         position: "relative",
@@ -62,5 +65,4 @@ export default function RestartButton() {
             }
         </div>
     );
-
 }

@@ -10,7 +10,7 @@ export default function RestartIcon() {
         >
             <defs>
                 <filter id="restart-shadow" x="-50%" y="-50%" width="200%" height="200%">
-                    <feDropShadow dx="0" dy="0" stdDeviation="1" floodColor="rgba(33, 33, 33, 0.5)" />
+                    <feDropShadow dx="0" dy="0" stdDeviation="1" floodColor="rgba(0, 0, 0, 0.5)" />
                 </filter>
             </defs>
 

@@ -108,11 +108,11 @@ export default function GuiBoard() {
                 gridTemplateColumns: "repeat(3, 1fr)",  // Creates a 3x3 grid
                 gap: "4%",
                 background: "#D68C2C",
+                margin: "5%",
                 padding: "5%",
                 borderRadius: 20,
                 position: "relative",
-                width: "80%",  // Board takes 80% of GameCanvas
-                maxWidth: "360px",  // Prevents excessive scaling
+                width: "90%",  // Board takes 80% of GameCanvas
                 height: "auto",  // Adjusts dynamically
                 aspectRatio: "1",  // Ensures it's always square
                 boxShadow: "0px 0px 10px rgba(0, 0, 0, 0.4)",  // Adds a shadow for depth
