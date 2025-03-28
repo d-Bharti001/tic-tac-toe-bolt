@@ -89,7 +89,7 @@ export default function GuiBoard() {
                 return decideCellEntryVisibilityFromGame(cellPosition);
             }
         }
-        return 0.4;
+        return 0.5;
     };
 
     const handleCellClick = (cellPosition: CellPosition) => {

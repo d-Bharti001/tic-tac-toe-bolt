@@ -16,7 +16,6 @@ export enum CellBackground {
 }
 
 const CELL_BG = "#263238"; // Dark background for cells
-const WIN_GLOW = "rgba(230, 214, 173, 0.5)"; // Light bluish-white glow
 const X_COLOR = "#FF5722"; // Reddish-orange for X
 const O_COLOR = "#2196F3"; // Blue for O
 
@@ -50,22 +49,22 @@ export default function GuiCell(props: CellProps) {
             style={{
                 width: "100%",
                 height: "100%",
-                background: decideCellBackground(cellPosition) === CellBackground.GLOW
-                    ? `radial-gradient(circle, ${WIN_GLOW} 5%, ${CELL_BG} 70%)`
-                    : CELL_BG,
+                background: CELL_BG,
                 transition: "background 0.3s ease-in-out",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
                 borderRadius: 20,
-                boxShadow: "0px 0px 5px rgba(0, 0, 0, 0.5)"
+                boxShadow: decideCellBackground(cellPosition) === CellBackground.NORMAL
+                    ? "inset 0px 0px 10px rgba(0, 0, 0, 0.5)"
+                    : "inset 0px 0px 10px rgba(255, 249, 196, 0.8)"
             }}
         >
             <svg
                 width="100%"
                 height="100%"
                 viewBox="0 0 50 50"
-                style={{ opacity: decideCellEntryVisibility(cellPosition, hovering), transition: "opacity 0.1s ease-in-out" }}
+                style={{ opacity: decideCellEntryVisibility(cellPosition, hovering), transition: "opacity 0.2s ease-in-out" }}
             >
                 <defs>
                     <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">

@@ -20,7 +20,7 @@ export default function GuiGameStatus() {
     return (
         <>
         {
-            gameStatus === "NOT_STARTED" &&
+            (gameStatus === "NOT_STARTED" || gameStatus === "IN_PROGRESS") &&
             <h3>
                 It's a looong way to go...
             </h3>
