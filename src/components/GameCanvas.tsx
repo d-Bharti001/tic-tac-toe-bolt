@@ -1,4 +1,3 @@
-import Footer from "./Footer";
 import GuiBoard from "./GuiBoard";
 import GuiGameStatus from "./GuiGameStatus";
 import Info from "./Info";
@@ -16,14 +15,13 @@ export default function GameCanvas() {
                 padding: "20px",
                 maxWidth: "360px",
                 gap: "16px",
-                margin: "40px 20px",
+                margin: "40px",
             }}
         >
             <Info />
             <GuiBoard />
             <RestartButton />
             <GuiGameStatus />
-            <Footer />
         </div>
     );
 }

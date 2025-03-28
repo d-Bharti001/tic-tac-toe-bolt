@@ -1,9 +1,15 @@
 import { useState } from "react";
 import InfoIcon from "./icons/InfoIcon";
+import InfoModal from "./InfoModal";
 
 export default function Info() {
 
     const [glow, setGlow] = useState(false);
+    const [showModal, setShowModal] = useState(false);
+
+    const handleModalClose = () => {
+        setShowModal(false);
+    };
 
     return (
         <div
@@ -20,6 +26,12 @@ export default function Info() {
         >
             <div
                 className="info-button"
+                role="button"
+                onClick={(e) => {
+                    e.preventDefault();
+                    setShowModal(true);
+                    setGlow(false);
+                }}
                 onMouseEnter={(e) => {
                     e.preventDefault();
                     setGlow(true);
@@ -44,6 +56,8 @@ export default function Info() {
             >
                 <InfoIcon />
             </div>
+
+            <InfoModal show={showModal} handleClose={handleModalClose} />
         </div>
     );
 }

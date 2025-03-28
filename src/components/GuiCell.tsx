@@ -48,6 +48,7 @@ export default function GuiCell(props: CellProps) {
                 height: "100%",
                 background: "#263238",
                 transition: "box-shadow 0.3s ease-in-out",
+                position: "relative",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
