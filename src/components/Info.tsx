@@ -15,6 +15,7 @@ export default function Info() {
                 justifyContent: "flex-end",
                 width: "100%",
                 minHeight: 60,
+                marginBottom: "5%",
             }}
         >
             <div
@@ -31,7 +32,7 @@ export default function Info() {
                     width: "14%",
                     height: "auto",
                     aspectRatio: "1",
-                    background: glow ? "rgba(255, 249, 196, 0.4)" : "transparent",
+                    background: glow ? "rgba(255, 249, 196, 0.5)" : "transparent",
                     borderRadius: 50,
                     position: "relative",
                     display: "flex",

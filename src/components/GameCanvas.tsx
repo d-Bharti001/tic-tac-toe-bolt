@@ -15,8 +15,8 @@ export default function GameCanvas() {
                 justifyContent: "flex-start",
                 padding: "20px",
                 maxWidth: "360px",
-                gap: "20px",
-                margin: "40px auto",
+                gap: "16px",
+                margin: "40px 20px",
             }}
         >
             <Info />
