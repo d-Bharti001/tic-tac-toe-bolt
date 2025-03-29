@@ -48,6 +48,7 @@ export default function Information() {
                 <img src={OldMoveImg} alt="Old Move" style={{ maxWidth: "100%" }} />
                 <p>The game continues till someone wins.</p>
                 <img src={GameWinImg} alt="Game Win" style={{ maxWidth: "60%" }} />
+                <p>It's a looong way to go.</p>
                 <br />
             </div>
             <HorizontalLine />
