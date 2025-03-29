@@ -7,7 +7,7 @@ export default function Footer() {
                 Tic Tac Toe Bolt
                 <span style={{ textShadow: "0px 0px 8px rgba(0, 0, 0, 0.5)" }}> ⚡️ </span>
                 <a
-                    href="https://github.com/d-Bharti001"
+                    href="https://github.com/d-Bharti001/tic-tac-toe-bolt"
                     target="_blank"
                 >
                     Github <LinkArrow />
