@@ -14,7 +14,7 @@ export default class ManualPlayer extends Player {
             output: process.stdout
         });
         return new Promise((resolve) => {
-            rl.question("Enter position [1, ..., 9]: ", (answer: String) => {
+            rl.question("Enter position [1, ..., 9]: ", (answer: string) => {
                 rl.close();
                 return resolve(Number(answer));
             });
