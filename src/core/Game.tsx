@@ -198,7 +198,7 @@ export default class Game {
             winningCells = [firstCell];
             let won = true;
             for (let i = 1; i < board.ROWS; i++) {
-                let j = i;
+                const j = i;
                 if (j < board.COLUMNS) {
                     const cell = board.getCell({ row: i, col: j });
                     if (cell.getCellEntry() === firstCell.getCellEntry()) {
@@ -220,7 +220,7 @@ export default class Game {
             winningCells = [firstCell];
             let won = true;
             for (let i = 1; i < board.ROWS; i++) {
-                let j = board.COLUMNS - 1 - i;
+                const j = board.COLUMNS - 1 - i;
                 if (j >= 0) {
                     const cell = board.getCell({ row: i, col: j });
                     if (cell.getCellEntry() === firstCell.getCellEntry()) {
